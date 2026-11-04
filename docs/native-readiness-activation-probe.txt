@@ -1,0 +1,1 @@
+Fork-only temporary native readiness activation probe. Never merge or deploy.
