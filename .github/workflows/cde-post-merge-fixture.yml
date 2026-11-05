@@ -1,0 +1,26 @@
+name: CDE isolated post-merge fixture
+on:
+  push:
+    branches:
+      - test/post-merge-comment-20261105
+permissions:
+  contents: read
+  issues: write
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm fixture merged and publish one bot comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: alexx-ftw/claude-desktop-extra
+          TEST_PR: '3'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = 'alexx-ftw/claude-desktop-extra'
+          test "$(gh api "repos/$GH_REPO/pulls/$TEST_PR" --jq '.merged')" = true
+          test "$(gh api "repos/$GH_REPO/pulls/$TEST_PR" --jq '.base.ref')" = 'test/post-merge-base-20261105'
+          gh api --method POST "repos/$GH_REPO/issues/$TEST_PR/comments" \
+            -f body="CDE isolated post-merge delivery fixture. Run $GITHUB_RUN_ID. This is test data only; no repository action is requested or authorized." \
+            --jq '{id,html_url,user:.user.login}'
